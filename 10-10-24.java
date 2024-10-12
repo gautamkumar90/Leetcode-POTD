@@ -42,3 +42,76 @@ class Solution {
         return ans;
     }
 }
+
+//Appraoch 4
+//Using sorting with the help of comparable Pair class
+//T.C. -> O(n log n)
+//S.C. -> O(n)
+
+class Solution {
+
+    class Pair implements Comparable<Pair> {
+        int idx;
+        int val;
+        Pair(int idx, int val) {
+            this.idx = idx;
+            this.val = val;
+        }
+
+        public int compareTo(Pair o) {
+            return this.val - o.val;
+        }
+    }
+
+    public int maxWidthRamp(int[] nums) {
+        int n = nums.length;
+        Pair[] arr = new Pair[n];
+        for(int i = 0; i < n; i++) {
+            arr[i] = new Pair(i, nums[i]);
+        }
+
+        Arrays.sort(arr); // sort on the basis of values 
+
+        //now values part is already checked so we have to only maximize the width
+        int minIdxSeen = arr[0].idx;
+        int maxWidth = 0;
+        for(int i = 1; i < n; i++) {
+            maxWidth = Math.max(maxWidth, arr[i].idx - minIdxSeen); //subtracting the current index with the min idx so far because greater than that index will not give any better ans
+            minIdxSeen = Math.min(minIdxSeen, arr[i].idx); // If we see any index less than this minIdxSeen that we'll update that idx to minIdxSeen
+        }
+        return maxWidth;
+    }
+}
+
+//Approach 5
+// Using monotonic stack approach
+// T.C. -> O(n)
+// S.C. -> O(n)
+
+class Solution {
+
+    public int maxWidthRamp(int[] nums) {
+        int n = nums.length;
+        Stack<Integer> st = new Stack<>();
+
+        // A strictly montonically decreasing stack is maintained and no popping is done because we wanted farthest element lesser or equal than the last index element. Why last element?
+        // we took last element as ref because that will help us to find the max value of j-i
+        for(int i = 0; i < n; i++) {
+            if(st.size() == 0 || (nums[i] < nums[st.peek()])) {
+                st.push(i);
+            }
+        }
+        
+        int maxWidth = 0;
+        int j = n-1;
+        while(j >= 0 && st.size() > 0) {
+            if(nums[st.peek()] <= nums[j]) {
+                maxWidth = Math.max(maxWidth, j-st.pop());
+            }
+            else {
+                j--;
+            }
+        }
+        return maxWidth;
+    }
+}
